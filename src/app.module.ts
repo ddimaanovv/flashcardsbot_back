@@ -9,9 +9,9 @@ import * as path from "path";
 
 @Module({
   imports: [
-    ServeStaticModule.forRoot({
-      rootPath: path.resolve(__dirname, "../../flashcardsbot-front/build"),
-    }),
+    // ServeStaticModule.forRoot({
+    //   rootPath: path.resolve(__dirname, "../../flashcardsbot-front/build"),
+    // }),
     ConfigModule.forRoot({
       envFilePath: `.${process.env.NODE_ENV}.env`,
     }),
