@@ -11,7 +11,7 @@ export class BotService implements OnModuleInit {
 
   async botMessage() {
     const bot = new TelegramBot(process.env.TG_BOT_TOKEN, {
-      testEnvironment: Boolean(process.env.TG_TEST_ENVIRONMENT),
+      //testEnvironment: Boolean(process.env.TG_TEST_ENVIRONMENT),
       polling: true,
     });
 
@@ -35,7 +35,7 @@ export class BotService implements OnModuleInit {
           msg.chat.username;
           await bot.sendMessage(
             msg.chat.id,
-            `Привет ${msg.chat.username}, это бот для изучения слов на иностранном языке, добавляй новые слова и бот будет присылать их тебе на проверку`,
+            `Привет, это бот для изучения слов на иностранном языке, добавляй новые слова и бот будет присылать их тебе на проверку`,
             this.initialOptions
           );
           break;
