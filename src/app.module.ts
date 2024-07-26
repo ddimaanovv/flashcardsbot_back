@@ -24,6 +24,11 @@ import * as path from "path";
       database: process.env.POSTGRES_DB,
       models: [Word],
       autoLoadModels: true,
+      dialectOptions: {
+        ssl: {
+          rejectUnauthorized: false, // Trust the self-signed certificate
+        },
+      },
     }),
     WordsModule,
   ],
