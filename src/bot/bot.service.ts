@@ -10,8 +10,14 @@ export class BotService implements OnModuleInit {
   }
 
   async botMessage() {
+    setInterval(() => console.log("Я работаю"), 60000);
+    let testEnvironment: boolean;
+    process.env.TG_TEST_ENVIRONMENT === "yes"
+      ? (testEnvironment = true)
+      : (testEnvironment = false);
+
     const bot = new TelegramBot(process.env.TG_BOT_TOKEN, {
-      //testEnvironment: Boolean(process.env.TG_TEST_ENVIRONMENT),
+      testEnvironment: testEnvironment,
       polling: true,
     });
 
@@ -40,11 +46,21 @@ export class BotService implements OnModuleInit {
           );
           break;
         case "addWord":
-          let word = msg.text.split("-");
+          let wordAndTranslate = msg.text.split("-");
+          wordAndTranslate[0] = wordAndTranslate[0].trim();
+          wordAndTranslate[1] = wordAndTranslate[1].trim();
+          let word =
+            wordAndTranslate[0].charAt(0).toUpperCase() +
+            wordAndTranslate[0].slice(1);
+          let translate =
+            wordAndTranslate[1].charAt(0).toUpperCase() +
+            wordAndTranslate[1].slice(1);
+          console.log(word, translate);
+
           await this.wordService.createWord({
             tgId: String(msg.chat.id),
-            word: word[0].trim(),
-            translate: word[1].trim(),
+            word: word,
+            translate: translate,
           });
           await bot.sendMessage(
             msg.chat.id,

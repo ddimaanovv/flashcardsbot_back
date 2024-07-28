@@ -4,14 +4,10 @@ import { WordsModule } from "./words/words.module";
 import { ConfigModule } from "@nestjs/config";
 import { Word } from "./words/words.model";
 import { BotService } from "./bot/bot.service";
-import { ServeStaticModule } from "@nestjs/serve-static";
 import * as path from "path";
 
 @Module({
   imports: [
-    // ServeStaticModule.forRoot({
-    //   rootPath: path.resolve(__dirname, "../../flashcardsbot-front/build"),
-    // }),
     ConfigModule.forRoot({
       envFilePath: `.${process.env.NODE_ENV}.env`,
     }),
@@ -24,11 +20,14 @@ import * as path from "path";
       database: process.env.POSTGRES_DB,
       models: [Word],
       autoLoadModels: true,
-      dialectOptions: {
-        ssl: {
-          rejectUnauthorized: false, // Trust the self-signed certificate
-        },
-      },
+      dialectOptions:
+        process.env.TG_TEST_ENVIRONMENT === "yes"
+          ? {}
+          : {
+              ssl: {
+                rejectUnauthorized: false, // Trust the self-signed certificate
+              },
+            },
     }),
     WordsModule,
   ],
