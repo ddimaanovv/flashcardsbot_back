@@ -21,7 +21,10 @@ import * as path from "path";
       models: [Word],
       autoLoadModels: true,
       dialectOptions: {
-        ssl: true
+        ssl: {
+          require: true,
+          rejectUnauthorized: false
+        }
       },
         //process.env.TG_TEST_ENVIRONMENT === "yes"
           //? {}
