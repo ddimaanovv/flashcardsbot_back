@@ -20,7 +20,9 @@ import * as path from "path";
       database: process.env.POSTGRES_DB,
       models: [Word],
       autoLoadModels: true,
-      dialectOptions: {}
+      dialectOptions: {
+        ssl: true
+      },
         //process.env.TG_TEST_ENVIRONMENT === "yes"
           //? {}
           //: {
