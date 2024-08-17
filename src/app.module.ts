@@ -20,14 +20,14 @@ import * as path from "path";
       database: process.env.POSTGRES_DB,
       models: [Word],
       autoLoadModels: true,
-      dialectOptions:
-        process.env.TG_TEST_ENVIRONMENT === "yes"
-          ? {}
-          : {
-              ssl: {
-                rejectUnauthorized: false, // Trust the self-signed certificate
-              },
-            },
+      dialectOptions: {}
+        //process.env.TG_TEST_ENVIRONMENT === "yes"
+          //? {}
+          //: {
+          //    ssl: {
+          //      rejectUnauthorized: false, // Trust the self-signed certificate
+          //    },
+          //  },
     }),
     WordsModule,
   ],
