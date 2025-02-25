@@ -13,7 +13,7 @@ export class AuthGuard implements CanActivate {
     context: ExecutionContext
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
-    //sconsole.log(request);
+    if (process.env.TG_TEST_ENVIRONMENT === "yes") return true;
     return this.verifyTelegramWebAppData(request.body.tgInitData);
   }
 
