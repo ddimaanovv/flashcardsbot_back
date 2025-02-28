@@ -1,10 +1,17 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
+import { SchedulerRegistry } from "@nestjs/schedule";
+import { CronJob } from "cron";
 import TelegramBot = require("node-telegram-bot-api");
+import { ScheduleService } from "src/schedule/schedule.service";
 import { WordsService } from "src/words/words.service";
 
 @Injectable()
 export class BotService implements OnModuleInit {
-  constructor(private readonly wordService: WordsService) {}
+  constructor(
+    private readonly wordService: WordsService,
+    private readonly scheduleService: ScheduleService,
+    private schedulerRegistry: SchedulerRegistry
+  ) {}
   async onModuleInit() {
     this.botMessage();
   }
@@ -44,6 +51,15 @@ export class BotService implements OnModuleInit {
             `Привет, это бот для изучения слов на иностранном языке, добавляй новые слова и бот будет присылать их тебе на проверку`,
             this.initialOptions
           );
+          await this.scheduleService.createReminder({
+            tgId: String(msg.chat.id),
+            reminder: "0 0 12 * * *",
+          });
+          const job = new CronJob("0 0 12 * * *", () => {
+            console.log("dkjsfnvlkjfds");
+          });
+          this.schedulerRegistry.addCronJob(String(msg.chat.id), job);
+          job.start();
           break;
         case "addWord":
           let wordAndTranslate = msg.text.split("-");

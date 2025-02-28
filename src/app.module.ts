@@ -4,6 +4,8 @@ import { WordsModule } from "./words/words.module";
 import { ConfigModule } from "@nestjs/config";
 import { Word } from "./words/words.model";
 import { BotService } from "./bot/bot.service";
+import { ScheduleModule } from "./schedule/schedule.module";
+import { ScheduleModule as GeneralScheduleModule } from "@nestjs/schedule";
 import * as path from "path";
 
 @Module({
@@ -21,15 +23,17 @@ import * as path from "path";
       models: [Word],
       autoLoadModels: true,
       dialectOptions: {},
-        //process.env.TG_TEST_ENVIRONMENT === "yes"
-          //? {}
-          //: {
-          //    ssl: {
-          //      rejectUnauthorized: false, // Trust the self-signed certificate
-          //    },
-          //  },
+      //process.env.TG_TEST_ENVIRONMENT === "yes"
+      //? {}
+      //: {
+      //    ssl: {
+      //      rejectUnauthorized: false, // Trust the self-signed certificate
+      //    },
+      //  },
     }),
     WordsModule,
+    ScheduleModule,
+    GeneralScheduleModule.forRoot(),
   ],
   controllers: [],
   providers: [BotService],
