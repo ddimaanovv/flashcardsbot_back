@@ -35,7 +35,7 @@ export class ScheduleController {
   })
   @Post(":tgId")
   getAll(@Param("tgId") tgId: string) {
-    return this.controllerService.getAllReminders(tgId);
+    return this.controllerService.getAllRemindersOfUser(tgId);
   }
 
   @ApiOperation({ summary: "Редактирование напоминания" })

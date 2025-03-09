@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { SchedulerRegistry } from "@nestjs/schedule";
-import { CronJob } from "cron";
+import { CronJob } from "@nestjs/schedule/node_modules/cron";
 import TelegramBot = require("node-telegram-bot-api");
 import { ScheduleService } from "src/schedule/schedule.service";
 import { WordsService } from "src/words/words.service";
@@ -38,6 +38,28 @@ export class BotService implements OnModuleInit {
       await this.callbackQueryHandler(action, msg, bot);
       await bot.answerCallbackQuery(callbackQuery.id);
     });
+
+    this.installAllReminders(bot);
+  }
+
+  async installAllReminders(bot: TelegramBot) {
+    const reminders = await this.scheduleService.getAllReminders();
+    // [
+    //   { id: 1, tgId: '2200891308', reminder: '0 0 12 * * *' },
+    //   { id: 2, tgId: '1111111111', reminder: '0 0 12 * * *' }
+    //]
+
+    reminders.map(async (reminder) => {
+      const job = new CronJob(reminder.reminder, async () => {
+        await bot.sendMessage(
+          reminder.tgId,
+          "Время тренировки",
+          this.startOptions
+        );
+      });
+      this.schedulerRegistry.addCronJob(String(reminder.id), job);
+      job.start();
+    });
   }
 
   async botOnTextHandler(msg: TelegramBot.Message, bot: TelegramBot) {
@@ -46,20 +68,15 @@ export class BotService implements OnModuleInit {
       switch (action) {
         case "/start":
           msg.chat.username;
+
           await bot.sendMessage(
             msg.chat.id,
             `Привет, это бот для изучения слов на иностранном языке, добавляй новые слова и бот будет присылать их тебе на проверку`,
             this.initialOptions
           );
-          await this.scheduleService.createReminder({
-            tgId: String(msg.chat.id),
-            reminder: "0 0 12 * * *",
-          });
-          const job = new CronJob("0 0 12 * * *", () => {
-            console.log("dkjsfnvlkjfds");
-          });
-          this.schedulerRegistry.addCronJob(String(msg.chat.id), job);
-          job.start();
+
+          this.createDefaultReminder(msg.chat.id, bot);
+
           break;
         case "addWord":
           let wordAndTranslate = msg.text.split("-");
@@ -92,6 +109,27 @@ export class BotService implements OnModuleInit {
       bot.sendMessage(msg.chat.id, "Не понял тебя error text");
       console.log(error.response.body);
     }
+  }
+
+  async createDefaultReminder(msgChatId: number, bot: TelegramBot) {
+    // проверка на существование дефолтного напоминания в 12:00 ежедневно
+    const remindersOfUser = await this.scheduleService.getAllRemindersOfUser(
+      String(msgChatId)
+    );
+    if (remindersOfUser.includes("0 0 12 * * *")) return;
+
+    //добавление дефолтного напоминания в БД
+    await this.scheduleService.createReminder({
+      tgId: String(msgChatId),
+      reminder: "0 0 12 * * *",
+    });
+
+    //добавление дефолтного напоминания в память программы
+    const job = new CronJob("0 0 12 * * *", async () => {
+      await bot.sendMessage(msgChatId, "Пора изучать слова", this.startOptions);
+    });
+    this.schedulerRegistry.addCronJob(String(msgChatId), job);
+    job.start();
   }
 
   async callbackQueryHandler(
