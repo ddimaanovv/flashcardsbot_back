@@ -17,7 +17,7 @@ export class BotService implements OnModuleInit {
   }
 
   async botMessage() {
-    setInterval(() => console.log("Я работаю"), 60000);
+    //setInterval(() => console.log("Я работаю"), 60000);
     let testEnvironment: boolean;
     process.env.TG_TEST_ENVIRONMENT === "yes"
       ? (testEnvironment = true)
@@ -145,6 +145,9 @@ export class BotService implements OnModuleInit {
         case "training":
           await this.startTraining(msg.chat.id, msg.message_id, bot);
           break;
+        case "fast_training":
+          await this.startTraining(msg.chat.id, msg.message_id, bot, true);
+          break;
         case "next":
           await this.sendWordsForUser(msg.chat.id, msg.message_id, bot);
           break;
@@ -174,8 +177,13 @@ export class BotService implements OnModuleInit {
     bot.deleteMessage(chatID, msgID);
   }
 
-  async startTraining(chatID, msgID, bot) {
+  async startTraining(chatID, msgID, bot, fast_training = false) {
     this.allWords[chatID] = await this.wordService.getAllWords(String(chatID));
+    if (fast_training) {
+      this.allWords[chatID] = this.allWords[chatID]
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 10);
+    }
     let totalWordsMessage = await bot.editMessageText(
       `Всего слов: ${this.allWords[chatID].length}\nСлов до конца тренировки: ${this.allWords[chatID].length}`,
       {
@@ -273,6 +281,7 @@ export class BotService implements OnModuleInit {
       inline_keyboard: [
         [{ text: "Добавить слово", callback_data: "newWord" }],
         [{ text: "Начать тренировку", callback_data: "training" }],
+        [{ text: "Быстрая тренировка", callback_data: "fast_training" }],
       ],
     },
   };
@@ -283,6 +292,7 @@ export class BotService implements OnModuleInit {
     reply_markup: {
       inline_keyboard: [
         [{ text: "Начать тренировку", callback_data: "training" }],
+        [{ text: "Быстрая тренировка", callback_data: "fast_training" }],
       ],
     },
   };
